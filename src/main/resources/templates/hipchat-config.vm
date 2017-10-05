@@ -1,0 +1,73 @@
+#* @vtlvariable name="i18n" type="com.atlassian.sal.api.message.I18nResolver" *#
+<html>
+<head>
+    <title>${i18n.getText("hipchat-item.label")}</title>
+    <meta name="decorator" content="atl.admin">
+</head>
+<body>
+	<div class="hc-admin">
+	    <form action="hipchat-config" method="post" class="aui">
+	        <h2>HipChat API Auth Token Configuration</h2>
+	
+	        <p>
+	            Bitbucket accesses HipChat through the HipChat API. This API is protected by an API token. 
+	            To request an API token, go to <a href="https://hipchat.com/admin/api" target="_blank">HipChat's API Auth Token page</a>
+	            then generate an <b>Admin</b> token. Copy and paste that token to the field below.
+	        </p>
+	        #if($error)
+            	<div class="aui-message error"><span class="aui-icon icon-error"></span>
+                	<p>$i18n.getText("hipchat.admin.error")</p>
+            	</div>
+        	#end
+	
+	        <div class="field-group">
+	            <label for="hipChatAuthToken">Admin Token<span class="aui-icon icon-required"></span><span class="content"> required</span></label>
+	            <input id="hipChatAuthToken" class="text" type="password" name="hipChatAuthToken" value="$hipChatAuthToken"/>
+	        </div>
+	        
+	        <div class="field-group">
+	            <label for="serverUrl">Server URL<span class="aui-icon icon-required"></span><span class="content"> required</span></label>
+	            <input id="serverUrl" class="text" type="text" name="serverUrl" value="$!serverUrl"/>
+	        </div>
+	        
+	        <div class="field-group">
+	        	<label for="showPushComments">Show commit messages?</label>
+			    <div class="checkbox">
+			        <input class="checkbox" type="checkbox" name="showPushComments" id="showPushComments" value="Yes" #if($showPushComments) checked #end> 
+			    	<div class="description">Display commit messages in Hipchat notifications on Push</div>
+			    </div> 
+	        </div>
+	        
+	        <div class="field-group">
+	        	<label for="showPRComments">Show pull request comments?</label>
+			    <div class="checkbox">
+			        <input class="checkbox" type="checkbox" name="showPRComments" id="showPRComments" value="Yes" #if($showPRComments) checked #end> 
+			    	<div class="description">Display pull request comments in Hipchat</div>
+			    </div> 
+	        </div>
+	        
+	        <fieldset class="group" id="message-color">
+	            <legend><span>Message Color</span></legend>
+	            <div>
+	            	<input type="radio" name="color" value="yellow" #if($color.equals("yellow")) checked #end> Yellow
+	            	<input type="radio" name="color" value="red" #if($color.equals("red")) checked #end> Red
+	            	<input type="radio" name="color" value="green" #if($color.equals("green")) checked #end> Green
+	            	<input type="radio" name="color" value="purple" #if($color.equals("purple")) checked #end> Purple
+	            	<input type="radio" name="color" value="gray" #if($color.equals("gray")) checked #end> Gray
+	            </div>
+	        </fieldset>
+	
+	        <div class="buttons-container">
+	            <div class="buttons">
+	                <input class="button submit" type="submit" value="Save"/>
+	            </div>
+	        </div>
+	        #if($showGlobalConfig)	        
+	        <div align="center">
+	        	<a href="$request.contextPath/plugins/servlet/hipchat-repo-config">Setup Global Event notifications</a> | <a href="$request.contextPath/plugins/servlet/blacklist-config">Blacklist configuration</a>  | <a href="$request.contextPath/plugins/servlet/hipchat-announcements">Announcements</a>
+	        </div>
+	        #end
+	    </form>
+	</div>
+</body>
+</html>

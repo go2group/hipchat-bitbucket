@@ -1,0 +1,87 @@
+#* @vtlvariable name="i18n" type="com.atlassian.sal.api.message.I18nResolver" *#
+<html>
+<head>
+    <title>${i18n.getText("blacklist-config.name")}</title>
+    <meta name="decorator" content="atl.admin">
+</head>
+<body>
+	<div class="hc-admin">
+		<br>
+		<div class="aui-group aui-group-split">
+			<div class="aui-item">
+				<h2>Blacklist Configuration</h2>
+			</div>
+			<div class="aui-item">
+				<div class="aui-toolbar">
+					<div class="toolbar-split toolbar-split-right">
+						<ul class="toolbar-group">
+							<li class="toolbar-item">
+								<a id="configuration-button" class="toolbar-trigger" title="Back to Configuration" href="$request.contextPath/plugins/servlet/hipchat-config">
+									<span class="trigger-text">Back to Configuration</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		#if ($errors)
+			<div class="aui-message error">
+				<ul>
+	            	#foreach( $error in $errors )
+	            		<li>$error</li>
+	            	#end
+	            </ul>
+			</div>
+		#end
+	    <form id="blacklistForm" action="blacklist-config" method="post" class="aui">	
+	        <p>
+	        	Maintain a list of users for which the event notifications will not be fired. This is useful to suppress notifications from robot processes like build agents. 
+	        </p>
+	        <div class="field-group">
+	            <label for="users">User Name</label>
+				<input id="user" class="text" type="text" maxlength="50" title="User Name">
+				<input id="addUser" class="button" value="Add"/>
+				<div class="description">
+					Provide the user name to be blacklisted and clik Add
+				</div>
+	        </div>
+	        <div class="field-group">
+	            <label for="users">Blacklisted Users</label>
+				<select id="users" name="users" multiple="multiple" size="10" style="width: 300px">
+				#if ($selectedUsers)
+					#foreach($user in $selectedUsers)
+						<option value="$user">$user</option>
+					#end
+				#end
+				</select><br>
+				<input id="removeUser" class="button" value="Remove"/>
+	        </div>	
+	        <div class="buttons-container">
+	            <div class="buttons">
+	                <input class="button" value="Save" onclick="submitList();"/>
+	            </div>
+	        </div>
+	    </form>
+	</div>
+	<script type="text/javascript">
+	AJS.$("#addUser").click(function(){
+		var user = AJS.$("#user").val();
+		if (user.length > 0) {
+			AJS.$("#users").append('<option value="'+user+'">'+user+'</option>');		
+			AJS.$("#user").val("");
+		}
+	});
+	AJS.$("#removeUser").click(function(){
+		AJS.$("#users option:selected").remove();
+	});
+	
+	function submitList(){
+		AJS.$('#users').find('option').each(function(){
+      		AJS.$(this).attr('selected','selected');
+    	});
+    	AJS.$("#blacklistForm").submit();
+ 	}
+	</script>
+</body>
+</html>

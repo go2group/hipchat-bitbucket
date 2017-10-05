@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+  <plugin-info>
+    <description>${project.description}</description>
+    <version>${project.version}</version>
+    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    <param name="configure.url">/plugins/servlet/hipchat-config</param>
+  </plugin-info>
+  
+  <resource type="i18n" name="i18n" location="com.go2group.hipchat-plugin"/>
+  
+  <web-resource name="Repo config" key="repo-config">
+        <resource name="underscore.js" type="download" location="js/underscore-min.js"/>
+        <resource name="backbone.js" type="download" location="js/backbone-min.js"/>
+        <resource name="repo.js" type="download" location="js/repo.js"/>
+    </web-resource>
+  
+  <web-item name="HipChat Repository Item" i18n-name-key="hipchat-repo-item.name" key="hipchat-repo-item" section="bitbucket.repository.settings.panel/repository-settings-addons-section" weight="1000">
+  	<condition class="com.atlassian.bitbucket.web.conditions.HasRepositoryPermissionCondition">
+    	<param name="permission">REPO_ADMIN</param>
+    </condition>
+    <description key="hipchat-item.description">Configure HipChat rooms for the repository</description>
+    <label key="hipchat-item.label"/>
+    <link linkId="hipchat-item-link">/plugins/servlet/hipchat-repo-config?repo=${repository.id}</link>
+  </web-item>
+  
+  <web-item name="HipChat Project Item" i18n-name-key="hipchat-project-item.name" key="hipchat-project-item" section="bitbucket.project.settings.panel/project-settings-addons-section" weight="1000">
+  	<condition class="com.atlassian.bitbucket.web.conditions.HasProjectPermissionCondition">
+    	<param name="permission">PROJECT_ADMIN</param>
+    </condition>
+    <description key="hipchat-project.description">Configure HipChat rooms for the project</description>
+    <label key="hipchat-item.label"/>
+    <link linkId="hipchat-project-link">/plugins/servlet/hipchat-project-config?project=${project.key}</link>
+  </web-item>
+  
+  <web-item name="HipChat Item" i18n-name-key="hipchat-item.name" key="hipchat-item" section="atl.admin/admin-plugins-section" weight="1000">
+    <description key="hipchat-item.description">Configure HipChat authentication token</description>
+    <label key="hipchat-item.label"/>
+    <link linkId="hipchat-config-link">/plugins/servlet/hipchat-config</link>
+  </web-item>
+  
+  <!-- Accessible at http://localhost:7990/bitbucket/plugins/servlet/hipchat-config -->
+  <servlet name="HipChat Config" i18n-name-key="hipchat-config.name" key="hipchat-config" class="com.go2group.servlet.HipChatConfig">
+    <description key="hipchat-config.description">Save the authentication token</description>
+    <url-pattern>/hipchat-config</url-pattern>
+  </servlet>
+  
+  <!-- Accessible at http://localhost:7990/bitbucket/plugins/servlet/hipchat-repo-config -->
+  <servlet name="HipChat Repo Config" i18n-name-key="hipchat-repo-config.name" key="hipchat-repo-config" class="com.go2group.servlet.HipChatRepoConfig">
+    <description key="hipchat-repo-config.description">Map the Hipchat rooms to the repository</description>
+    <url-pattern>/hipchat-repo-config</url-pattern>
+  </servlet>
+  
+  <!-- Accessible at http://localhost:7990/bitbucket/plugins/servlet/hipchat-project-config -->
+  <servlet name="HipChat Project Config" i18n-name-key="hipchat-project-config.name" key="hipchat-project-config" class="com.go2group.servlet.HipChatProjectConfig">
+    <description key="hipchat-project-config.description">Map the Hipchat rooms to the project</description>
+    <url-pattern>/hipchat-project-config</url-pattern>
+  </servlet>
+  
+  <!-- Accessible at http://localhost:7990/bitbucket/plugins/servlet/blacklist-config -->
+  <servlet name="Blacklist Config" i18n-name-key="blacklist-config.name" key="blacklist-config" class="com.go2group.servlet.BlacklistConfig">
+    <description key="blacklist-config.description">Maintain list of blacklisted users</description>
+    <url-pattern>/blacklist-config</url-pattern>
+  </servlet>
+  
+  <!-- Accessible at http://localhost:7990/bitbucket/plugins/servlet/hipchat-announcements -->
+  <servlet name="Announcements" i18n-name-key="announcements.name" key="announcements-config" class="com.go2group.servlet.Announcements">
+    <description key="announcements.description">Announcements to Hipchat rooms, right from Bitbucket</description>
+    <url-pattern>/hipchat-announcements</url-pattern>
+  </servlet>
+  
+  <component-import key="application-properties" interface="com.atlassian.sal.api.ApplicationProperties"/>
+  <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer"/>
+  <component-import key="pluginSettingsFactory"
+                      interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>	
+  <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+  <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
+  <component-import key="requestFactory" interface="com.atlassian.sal.api.net.RequestFactory"/>
+  <component-import key="executorFactory" interface="com.atlassian.sal.api.executor.ThreadLocalDelegateExecutorFactory"/>
+  <component name="Configuration Manager" key="configurationManager"
+               class="com.go2group.hipchat.components.ConfigurationManager">
+  	<description>Stores the details of the configured HipChat settings</description>
+  </component>
+  <component name="HipChat Proxy Client" key="proxy-client"
+               class="com.go2group.hipchat.components.HipChatProxyClient"/>
+               
+  <component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
+  <component name="Repository Listener" key="hipchat-repo-listener"
+               class="com.go2group.hipchat.components.RepoListener"/>
+</atlassian-plugin>

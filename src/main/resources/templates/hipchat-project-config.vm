@@ -1,0 +1,150 @@
+#* @vtlvariable name="i18n" type="com.atlassian.sal.api.message.I18nResolver" *#
+<html>
+<head>
+    <title>${i18n.getText("hipchat-item.label")}</title>
+    <meta name="decorator" content="bitbucket.project.settings">
+    <meta name="projectKey" content="$projectKey">
+    <meta name="activeTab" content="hipchat-project-item">
+</head>
+<body>	
+    <script id="rooms-tmpl" type="text/tmpl">
+        <% _.each(rooms, function(room){ %>
+        <div class="checkbox">
+            <input class="checkbox" type="checkbox" <%- room.checked %> name="roomId" value="<%- room.room_id %>">
+            <label for="<%- room.room_id %>"><%- room.name %></label>
+        </div>
+        <% }) %>
+    </script>
+	<div class="hc-admin">
+		<div class="aui-group aui-group-split">
+			<div class="aui-item">
+				<h2>HipChat Project Configuration</h2>
+			</div>
+		</div>
+	    <form action="hipchat-project-config" method="post" class="aui">	
+	        <p>
+	        	Bitbucket can notify one or more HipChat rooms when a push or pull is made on <b>$projectKey</b>, unless overriden at a repository level. Specify the room(s) you would like notified:
+	        </p>
+	        <input type="hidden" name="project" value="$projectKey"/>
+	        <fieldset class="group" id="rooms">
+	            <legend><span>Rooms</span></legend>
+	            <div id="room-list"></div>
+	        </fieldset>
+	        <p>
+	        	Select the event(s). If none selected, all events will be notified:
+	        </p>
+	        <fieldset class="group" id="events">
+	            <legend><span>Events</span></legend>
+	            <div id="event-list">
+	            	<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="RepoC" name="event" #if ($events.contains("RepoC")) checked #end>
+						<label for="Push">Repository Creation Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="RepoD" name="event" #if ($events.contains("RepoD")) checked #end>
+						<label for="Pull">Repository Deletion Event</label>
+					</div>
+	            	<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="Push" name="event" #if ($events.contains("Push")) checked #end>
+						<label for="Push">Push Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="Pull" name="event" #if ($events.contains("Pull")) checked #end>
+						<label for="Pull">Pull Event</label>
+					</div>
+					<div class="checkbox">
+						<input id="pull-request" class="checkbox" type="checkbox" value="PullR" name="event" #if ($events.contains("PullR")) checked #end>
+						<label for="Pull">All Pull Request Events</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-O" name="event" #if ($events.contains("PullR-O")) checked #end>
+						<label for="Pull">Pull Request Created/Opened Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-A" name="event" #if ($events.contains("PullR-A")) checked #end>
+						<label for="Pull">Pull Request Approved Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-D" name="event" #if ($events.contains("PullR-D")) checked #end>
+						<label for="Pull">Pull Request Declined Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-C" name="event" #if ($events.contains("PullR-C")) checked #end>
+						<label for="Pull">Pull Request Commented Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-M" name="event" #if ($events.contains("PullR-M")) checked #end>
+						<label for="Pull">Pull Request Merged Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-PU" name="event" #if ($events.contains("PullR-PU")) checked #end>
+						<label for="Pull">Pull Request Particiapants Updated Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-RU" name="event" #if ($events.contains("PullR-RU")) checked #end>
+						<label for="Pull">Pull Request Roles Updated Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-RO" name="event" #if ($events.contains("PullR-RO")) checked #end>
+						<label for="Pull">Pull Request Reopened Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-RS" name="event" #if ($events.contains("PullR-RS")) checked #end>
+						<label for="Pull">Pull Request Rescoped Event</label>
+					</div>
+					<div class="checkbox">
+						<input class="checkbox" type="checkbox" value="PullR-U" name="event" #if ($events.contains("PullR-U")) checked #end>
+						<label for="Pull">Pull Request Updated Event</label>
+					</div>
+	            </div>
+	        </fieldset>	
+	        <fieldset class="group" id="notify">
+	            <legend><span>Notify?</span></legend>
+	            <div class="checkbox">
+					<input class="checkbox" type="checkbox" value="true" name="notify" #if ($notify) checked #end>
+					<label for="notify">Whether or not this message should trigger a notification for people in the room (based on individual notification preferences)</label>
+				</div>
+	        </fieldset>	
+	        <div class="buttons-container">
+	            <div class="buttons">
+	                <input class="button submit" type="submit" value="Save"/>
+	            </div>
+	        </div>
+	    </form>
+	</div>
+	$webResourceManager.requireResource("com.go2group.hipchat-plugin:repo-config")
+    <script type="text/javascript">
+        window.hcRoomIds = "$roomsToNotifyStrHtml";
+        window.hcRooms = $roomsJsonHtml;
+        window.hcOwnerUserId = $hcOwnerUserId;
+        function disablePullRequestOptions(){
+        	AJS.$('input[type=checkbox]').each(function () {
+			    if (AJS.$(this).val().indexOf('PullR-') >= 0) {
+			    	AJS.$(this).attr('disabled', true);
+			    }
+			});
+        }
+        function enablePullRequestOptions(){
+        	AJS.$('input[type=checkbox]').each(function () {
+			    if (AJS.$(this).val().indexOf('PullR-') >= 0) {
+			    	AJS.$(this).attr('disabled', false);
+			    }
+			});
+        }
+        AJS.$(document).ready(function(){
+        	AJS.$('#event-list input:checked').each(function() {
+			    if (AJS.$(this).val() == 'PullR') {
+			    	disablePullRequestOptions();
+			    }
+			});			
+        });
+        AJS.$('#pull-request').change(function() {
+        	if (AJS.$(this).is(':checked')) {
+        		disablePullRequestOptions();
+        	} else {
+        		enablePullRequestOptions();
+        	}
+        });
+    </script>
+</body>
+</html>
